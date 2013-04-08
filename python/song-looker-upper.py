@@ -1,6 +1,7 @@
 import musicbrainzngs
 
-if __name__ == "__main__":
+
+def lookup_song():
     musicbrainzngs.set_useragent('Song-Looker-Upper', '0.1', 'http://www.kbarnes3.com')
 
     result = musicbrainzngs.search_recordings('"ALL OF THE LIGHTS" AND artist:"KANYE WEST" AND status:official')
@@ -14,3 +15,6 @@ if __name__ == "__main__":
     format_string = "INSERT INTO SONGS (artist, title, duration) VALUES ('{0}', '{1}', {2})"
     output = format_string.format(artist, title, duration)
     print(output)
+
+if __name__ == "__main__":
+    lookup_song()
