@@ -1,0 +1,1 @@
+INSERT INTO SONGS (artist, title, duration) VALUES ('{artist}', '{title}', {duration})
