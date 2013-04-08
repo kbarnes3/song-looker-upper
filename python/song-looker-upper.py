@@ -1,12 +1,21 @@
+from __future__ import print_function
+
 import musicbrainzngs
 
-DEFAULT_FORMAT = 'Artist: {0}\nTitle: {1}\nDuration: {2}'
+DEFAULT_FORMAT = 'Artist: {artist}\nTitle: {title}\nDuration: {duration}\n'
 
 
 def get_format(format_file_path):
     if format_file_path is None:
         return DEFAULT_FORMAT
-    return DEFAULT_FORMAT
+    with open(format_file_path, 'r') as format_file:
+        format_string = ''
+        for line in format_file:
+            if len(line) <= 1:
+                break
+            format_string += line
+        return format_string
+
 
 def lookup_song(format_string, sql):
     musicbrainzngs.set_useragent('Song-Looker-Upper', '0.1', 'http://www.kbarnes3.com')
@@ -24,8 +33,9 @@ def lookup_song(format_string, sql):
 
     duration = int(int(recording['length']) / 1000)
 
-    output = format_string.format(artist, title, duration)
-    print(output)
+    output = format_string.format(artist=artist, title=title, duration=duration)
+    print(output, end='')
+    print('Done')
 
 if __name__ == "__main__":
     import argparse

@@ -1,0 +1,5 @@
+Artist: {artist}
+Title: {title}
+Duration: {duration}
+
+Anything after the first blank line is ignored
