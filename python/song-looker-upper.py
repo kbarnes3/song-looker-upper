@@ -7,6 +7,10 @@ import musicbrainzngs
 DEFAULT_FORMAT = 'Artist: {artist}\nTitle: {title}\nDuration: {duration}\n'
 
 
+class RecordParseException(Exception):
+    pass
+
+
 def get_format(format_file_path):
     if format_file_path is None:
         return DEFAULT_FORMAT
@@ -23,7 +27,10 @@ def lookup_songs(csv_path, format_string, sql):
     with open(csv_path, 'rb') as csv_file:
         reader = csv.reader(csv_file)
         for row in reader:
-            lookup_song(row[0], row[1], format_string, sql)
+            try:
+                lookup_song(row[0], row[1], format_string, sql)
+            except RecordParseException:
+                pass
 
 
 def lookup_song(artist, title, format_string, sql):
@@ -38,20 +45,26 @@ def lookup_song(artist, title, format_string, sql):
         return
 
     recording = result['recording-list'][0]
-    artist = recording['artist-credit'][0]['artist']['name']
-    artist = artist.replace(u'\u2019', "'")
-    title = recording['title']
-    title = title.replace(u'\u2019', "'")
 
-    if sql:
-        artist = artist.replace("'", "''")
-        title = title.replace("'", "''")
+    try:
+        artist = recording['artist-credit'][0]['artist']['name']
+        artist = artist.replace(u'\u2019', "'")
+        title = recording['title']
+        title = title.replace(u'\u2019', "'")
 
-    length = recording['release-list'][0]['medium-list'][1]['track-list'][0]['length']
-    duration = int(int(length) / 1000)
+        if sql:
+            artist = artist.replace("'", "''")
+            title = title.replace("'", "''")
 
-    output = format_string.format(artist=artist, title=title, duration=duration)
-    print(output, end='')
+        length = recording['release-list'][0]['medium-list'][1]['track-list'][0]['length']
+        duration = int(int(length) / 1000)
+
+        output = format_string.format(artist=artist, title=title, duration=duration)
+        print(output, end='')
+    except Exception as ex:
+        print('Error handling recording: ' + str(recording), file=sys.stderr)
+        print(ex.message, file=sys.stderr)
+        raise RecordParseException(ex.message)
 
 if __name__ == "__main__":
     import argparse
